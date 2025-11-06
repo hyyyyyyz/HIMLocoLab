@@ -215,15 +215,16 @@ class CommandsCfg:
     base_velocity = mdp.UniformLevelVelocityCommandCfg(
         asset_name="robot",
         resampling_time_range=(10.0, 10.0),
-        # rel_standing_envs=0.1,
         debug_vis=True,
         heading_command=True,
         ranges=mdp.UniformLevelVelocityCommandCfg.Ranges(
-            lin_vel_x=(-1, 1), lin_vel_y=(-1.0, 1.0), ang_vel_z=(-math.pi, math.pi), heading=(-math.pi, math.pi)
+            lin_vel_x=(-1, 1), lin_vel_y=(-1.0, 1.0), ang_vel_z=(-2.0, 2.0), heading=(-math.pi, math.pi)
         ),
-        limit_ranges=mdp.UniformLevelVelocityCommandCfg.Ranges(
-            lin_vel_x=(-2, 2), lin_vel_y=(-1.0, 1.0), ang_vel_z=(-math.pi, math.pi), heading=(-math.pi, math.pi)
-        ),
+        heading_control_stiffness=0.5,
+        curriculums_limit_ranges=(-2, 2),
+        low_vel_env_lin_x_ranges=(-1, 1),
+        rel_high_vel_envs=0.2,
+        min_command_norm=0.2,
     )
 
 
@@ -430,6 +431,11 @@ class TerminationsCfg:
         func=mdp.illegal_contact,
         params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names="base"), "threshold": 1.0},
     )
+    terrain_out_of_bounds = DoneTerm(
+        func=mdp.terrain_out_of_bounds,
+        params={"asset_cfg": SceneEntityCfg("robot"), "distance_buffer": 3.0},
+        time_out=True,
+    )
 
 
 @configclass
@@ -497,11 +503,10 @@ class RobotPlayEnvCfg(RobotEnvCfg):
     def __post_init__(self):
         super().__post_init__()
         self.scene.num_envs = 64
-        # self.scene.terrain.terrain_generator.num_rows = 4
-        # self.scene.terrain.terrain_generator.num_cols = 4
+        self.scene.terrain.terrain_generator.num_cols = 10
+        self.scene.terrain.max_init_terrain_level = 10
         self.scene.terrain.terrain_generator.curriculum = True
-        self.commands.base_velocity.heading_command = False
-        self.commands.base_velocity.rel_standing_envs = 0.0
+        # self.commands.base_velocity.heading_command = False
         self.commands.base_velocity.ranges = mdp.UniformLevelVelocityCommandCfg.Ranges(
-            lin_vel_x=(1, 1), lin_vel_y=(0, 0), ang_vel_z=(-0, 0), heading=(-0, 0)
+            lin_vel_x=(-2, 2), lin_vel_y=(-1.0, 1.0), ang_vel_z=(-2, 2), heading=(-math.pi, math.pi)
         )
