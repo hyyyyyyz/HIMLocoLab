@@ -9,6 +9,7 @@
 #include <deque>
 #include "isaaclab/manager/manager_term_cfg.h"
 #include <iostream>
+#include <spdlog/spdlog.h>
 
 namespace isaaclab
 {
@@ -46,9 +47,13 @@ public:
         {
             term.reset(term.func(this->env));
         }
-        // Clear history buffer on reset
+        // Clear and reinitialize history buffer with zeros
         obs_history_buffer.clear();
-        obs_history_buffer.resize(history_length);
+        // Pre-fill buffer with zero observations so first step gets 6-step history with zeros
+        std::vector<float> zero_obs(get_obs_dim(), 0.0f);
+        for (int i = 0; i < history_length; ++i) {
+            obs_history_buffer.push_back(zero_obs);
+        }
     }
 
     std::vector<float> compute()
@@ -76,15 +81,27 @@ public:
             current_obs.insert(current_obs.end(), term_obs.begin(), term_obs.end());
         }
         
-        // Step 2: Add current observation to history buffer
-        obs_history_buffer.pop_front();
+        
+        // Step 2: Add current observation to history buffer with sliding window
+        if (obs_history_buffer.size() >= (size_t)history_length) {
+            obs_history_buffer.pop_front();
+        }
         obs_history_buffer.push_back(current_obs);
         
-        // Step 3: Stack all historical observations
+        // Step 3: Stack observations - order: [current, history1, history2, ..., historyN]
+        // This matches the training wrapper stacking order
         std::vector<float> stacked_obs;
-        for (const auto& obs : obs_history_buffer) {
-            stacked_obs.insert(stacked_obs.end(), obs.begin(), obs.end());
+        stacked_obs.insert(stacked_obs.end(), current_obs.begin(), current_obs.end());
+        
+        // Add historical observations (oldest to newest before current)
+        std::vector<std::vector<float>> history_stack(obs_history_buffer.begin(), obs_history_buffer.end());
+        if (history_stack.size() > 1) {
+            // Skip the last one (current obs) and add the rest
+            for (size_t i = 0; i < history_stack.size() - 1; ++i) {
+                stacked_obs.insert(stacked_obs.end(), history_stack[i].begin(), history_stack[i].end());
+            }
         }
+        
         
         return stacked_obs;
     }
@@ -94,22 +111,48 @@ public:
     int history_length;
     std::deque<std::vector<float>> obs_history_buffer;
     
+    // Get observation dimension (sum of all term dimensions)
+    size_t get_obs_dim() const
+    {
+        size_t total_dim = 0;
+        for (const auto& term_cfg : obs_term_cfgs) {
+            auto sample_obs = term_cfg.func(const_cast<ManagerBasedRLEnv*>(env));
+            total_dim += sample_obs.size();
+        }
+        return total_dim;
+    }
+    
 private:
     void _initialize_history_buffer()
     {
-        // Initialize history buffer with empty observations
-        obs_history_buffer.resize(history_length);
+        // Get the observation dimension from terms
+        size_t obs_dim = 0;
+        for (const auto& term_cfg : obs_term_cfgs) {
+            auto sample_obs = term_cfg.func(env);
+            obs_dim += sample_obs.size();
+        }
+        
+        // Pre-fill buffer with zero observations
+        std::vector<float> zero_obs(obs_dim, 0.0f);
+        obs_history_buffer.clear();
+        for (int i = 0; i < history_length; ++i) {
+            obs_history_buffer.push_back(zero_obs);
+        }
+
+        spdlog::info("History buffer initialized with {} zero observations (dim={})", history_length, get_obs_dim());
     }
 
     void _prapare_terms()
     {
-        for(auto it = this->cfg.begin(); it != this->cfg.end(); ++it)
+        // Get observations config from the full config
+        auto obs_cfg = cfg["observations"];
+        
+        if (!obs_cfg) {
+            throw std::runtime_error("No 'observations' key found in config");
+        }
+        
+        for(auto it = obs_cfg.begin(); it != obs_cfg.end(); ++it)
         {
-            // Skip non-term keys like "history_length"
-            if (it->first.as<std::string>() == "history_length") {
-                continue;
-            }
-            
             auto term_yaml_cfg = it->second;
             ObservationTermCfg term_cfg;
             // Don't set history_length for individual terms - we handle it globally
@@ -130,7 +173,7 @@ private:
             }
 
             this->obs_term_cfgs.push_back(term_cfg);
-            std::cout << "Successfully loaded observation term: " << term_name << std::endl;
+            spdlog::info("Successfully loaded observation term: {}", term_name);
             
         }
     }

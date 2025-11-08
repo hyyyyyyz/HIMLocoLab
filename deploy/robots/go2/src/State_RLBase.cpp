@@ -10,13 +10,18 @@ State_RLBase::State_RLBase(int state_mode, std::string state_string)
     auto cfg = param::config["FSM"][state_string];
     auto policy_dir = parser_policy_dir(cfg["policy_dir"].as<std::string>());
 
+    // Load deploy configuration
+    auto deploy_cfg = YAML::LoadFile(policy_dir / "params" / "deploy.yaml");
+    
     env = std::make_unique<isaaclab::ManagerBasedRLEnv>(
-        YAML::LoadFile(policy_dir / "params" / "deploy.yaml"),
+        deploy_cfg,
         std::make_shared<unitree::BaseArticulation<LowState_t::SharedPtr>>(FSMState::lowstate)
     );
     
-    // Check if dual network mode is enabled
-    if (cfg["use_encoder"] && cfg["use_encoder"].as<bool>()) {
+    // Check if dual network mode is enabled (from deploy.yaml)
+    bool use_encoder = deploy_cfg["use_encoder"] ? deploy_cfg["use_encoder"].as<bool>() : false;
+    
+    if (use_encoder) {
         spdlog::info("Loading dual network (encoder + policy)...");
         env->alg = std::make_unique<isaaclab::DualOrtRunner>(
             (policy_dir / "exported" / "encoder.onnx").string(),

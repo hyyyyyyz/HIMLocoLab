@@ -42,8 +42,9 @@ public:
         robot->update();
 
         // load managers
+        // Pass full cfg to observation_manager so it can access history_length from top-level
         action_manager = std::make_unique<ActionManager>(cfg["actions"], this);
-        observation_manager = std::make_unique<ObservationManager>(cfg["observations"], this);
+        observation_manager = std::make_unique<ObservationManager>(cfg, this);
     }
 
     void reset()
