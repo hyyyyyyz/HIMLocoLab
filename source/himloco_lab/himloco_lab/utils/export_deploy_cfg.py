@@ -36,7 +36,7 @@ def export_deploy_cfg(env: ManagerBasedRLEnv, log_dir, history_length: int = 0, 
     
     # --- Network architecture ---
     cfg["use_encoder"] = use_encoder
-    cfg["history_length"] = history_length
+    cfg["history_length"] = history_length+1
     
     # --- Robot configuration ---
     cfg["joint_ids_map"] = joint_ids_map

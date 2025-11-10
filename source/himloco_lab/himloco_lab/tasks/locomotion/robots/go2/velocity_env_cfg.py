@@ -153,14 +153,14 @@ class EventCfg:
         },
     )
     
-    randomize_rigid_body_com = EventTerm(
-        func=mdp.randomize_rigid_body_com,
-        mode="startup",
-        params={
-            "asset_cfg": SceneEntityCfg("robot", body_names="base"),
-            "com_range": {"x": (-0.05, 0.05), "y": (-0.05, 0.05), "z": (-0.05, 0.05)},
-        },
-    )
+    # randomize_rigid_body_com = EventTerm(
+    #     func=mdp.randomize_rigid_body_com,
+    #     mode="startup",
+    #     params={
+    #         "asset_cfg": SceneEntityCfg("robot", body_names="base"),
+    #         "com_range": {"x": (-0.05, 0.05), "y": (-0.05, 0.05), "z": (-0.05, 0.05)},
+    #     },
+    # )
 
     # reset
 
@@ -343,7 +343,7 @@ class RewardsCfg:
         params={
             "asset_cfg": SceneEntityCfg("robot", body_names=".*_foot"),
             "target_height": -0.2,
-            # "command_name": "base_velocity",
+            "command_name": "base_velocity",
         }
     )
 
@@ -352,18 +352,26 @@ class RewardsCfg:
     # joint_torques = RewTerm(func=mdp.joint_torques_l2, weight=-2e-4)
     # joint_vel = RewTerm(func=mdp.joint_vel_l2, weight=-0.001)
     
-    undesired_contacts = RewTerm(
+    head_undesired_contacts = RewTerm(
         func=mdp.undesired_contacts,
         weight=-1,
         params={
             "threshold": 0.3,
-            # "sensor_cfg": SceneEntityCfg("contact_forces", body_names=["Head_.*", ".*_hip", ".*_thigh", ".*_calf"]),
             "sensor_cfg": SceneEntityCfg("contact_forces", body_names=["Head_.*"]),
         },
     )
+    
+    # other_undesired_contacts = RewTerm(
+    #     func=mdp.undesired_contacts,
+    #     weight=-0.01,
+    #     params={
+    #         "threshold": 0.3,
+    #         "sensor_cfg": SceneEntityCfg("contact_forces", body_names=[".*_hip", ".*_thigh", ".*_calf"]),
+    #     },
+    # )
 
     # is_terminated = RewTerm(func=mdp.is_terminated, weight=-5.0)
-    # joint_pos_limits = RewTerm(func=mdp.joint_pos_limits, weight=-10.0)
+    joint_pos_limits = RewTerm(func=mdp.joint_pos_limits, weight=-10.0)
     # joint_vel_limits = RewTerm(func=mdp.joint_vel_limits, weight=-5.0)
     # applied_torque_limits = RewTerm(func=mdp.applied_torque_limits, weight=-0.1)
     
@@ -379,7 +387,7 @@ class RewardsCfg:
     
     # feet_stumble = RewTerm(
     #     func=mdp.feet_stumble,
-    #     weight=-0.1,
+    #     weight=-0.01,
     #     params={
     #         "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot"),
     #     },

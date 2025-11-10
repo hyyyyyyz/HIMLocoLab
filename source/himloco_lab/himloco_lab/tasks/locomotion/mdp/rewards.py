@@ -214,7 +214,7 @@ def base_height(
         adjusted_target_height = target_height
     # Compute the L2 squared penalty
     reward = torch.square(asset.data.root_pos_w[:, 2] - adjusted_target_height)
-    # reward *= torch.clamp(-env.scene["robot"].data.projected_gravity_b[:, 2], 0, 0.7) / 0.7
+    reward *= torch.clamp(-env.scene["robot"].data.projected_gravity_b[:, 2], 0, 0.7) / 0.7
     return reward
 
 
