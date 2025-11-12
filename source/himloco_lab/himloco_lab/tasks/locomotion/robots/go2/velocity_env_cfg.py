@@ -31,7 +31,7 @@ COBBLESTONE_ROAD_CFG = terrain_gen.TerrainGeneratorCfg(
     vertical_scale=0.005,  # [m] height scale
     slope_threshold=0.75,
     difficulty_range=(0.0, 1.0),
-    use_cache=False,
+    use_cache=True,
     sub_terrains={
         "hf_pyramid_slope": terrain_gen.HfPyramidSlopedTerrainCfg(
             proportion=0.15, 
@@ -112,6 +112,14 @@ class RobotSceneCfg(InteractiveSceneCfg):
         offset=RayCasterCfg.OffsetCfg(pos=(0.0, 0.0, 20.0)),
         ray_alignment="yaw",
         pattern_cfg=patterns.GridPatternCfg(resolution=0.1, size=[1.6, 1.0]),
+        debug_vis=False,
+        mesh_prim_paths=["/World/ground"],  
+    )
+    base_height_scanner = RayCasterCfg(
+        prim_path="{ENV_REGEX_NS}/Robot/base",
+        offset=RayCasterCfg.OffsetCfg(pos=(0.0, 0.0, 20.0)),
+        ray_alignment="yaw",
+        pattern_cfg=patterns.GridPatternCfg(resolution=0.05, size=[0.3, 0.4]),
         debug_vis=False,
         mesh_prim_paths=["/World/ground"],  
     )
@@ -337,7 +345,7 @@ class RewardsCfg:
         weight=-1.0, 
         params={
             "target_height": 0.3,
-            "sensor_cfg": SceneEntityCfg("height_scanner"),
+            "sensor_cfg": SceneEntityCfg("base_height_scanner"),
         },
     )
 
