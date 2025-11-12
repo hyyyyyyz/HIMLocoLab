@@ -153,14 +153,14 @@ class EventCfg:
         },
     )
     
-    # randomize_rigid_body_com = EventTerm(
-    #     func=mdp.randomize_rigid_body_com,
-    #     mode="startup",
-    #     params={
-    #         "asset_cfg": SceneEntityCfg("robot", body_names="base"),
-    #         "com_range": {"x": (-0.05, 0.05), "y": (-0.05, 0.05), "z": (-0.05, 0.05)},
-    #     },
-    # )
+    randomize_rigid_body_com = EventTerm(
+        func=mdp.randomize_rigid_body_com,
+        mode="startup",
+        params={
+            "asset_cfg": SceneEntityCfg("robot", body_names="base"),
+            "com_range": {"x": (-0.05, 0.05), "y": (-0.05, 0.05), "z": (-0.05, 0.05)},
+        },
+    )
 
     # reset
 
@@ -190,21 +190,25 @@ class EventCfg:
     )
 
     # interval
-    # external_force = EventTerm(
-    #     func=mdp.apply_external_force_torque,
-    #     mode="interval",
-    #     interval_range_s=(8.0*0.02, 8.0*0.02),
-    #     params={
-    #         "force_range": (-30.0, 30.0),
-    #         "torque_range": (-0.0, 0.0),
-    #         "asset_cfg": SceneEntityCfg("robot", body_names="base"),
-    #     },
-    # )
+    external_force = EventTerm(
+        func=mdp.apply_periodic_external_force_torque,
+        mode="interval",
+        interval_range_s=(0.02, 0.02),
+        params={
+            "period_step": 8,
+            "force_range": (-30.0, 30.0),
+            "torque_range": (-0.0, 0.0),
+            "asset_cfg": SceneEntityCfg("robot", body_names="base"),
+        },
+    )
     push_robot = EventTerm(
         func=mdp.push_by_setting_velocity,
         mode="interval",
         interval_range_s=(16.0, 16.0),
-        params={"velocity_range": {"x": (-1, 1), "y": (-1, 1)}},
+        params={
+            "velocity_range": {"x": (-1, 1), "y": (-1, 1)},
+            "asset_cfg": SceneEntityCfg("robot", body_names="base"),
+        },
     )
 
 
@@ -280,11 +284,11 @@ class ObservationsCfg:
         # last_action = ObsTerm(func=mdp.last_action, clip=(-100, 100))
         
         base_lin_vel = ObsTerm(func=mdp.base_lin_vel, scale=2.0, clip=(-100, 100), noise=Unoise(n_min=-0.1, n_max=0.1))
-        # base_external_force = ObsTerm(
-        #     func=mdp.base_external_force,
-        #     params={"asset_cfg": SceneEntityCfg("robot", body_names="base")},
-        #     clip=(-100, 100),
-        # )
+        base_external_force = ObsTerm(
+            func=mdp.base_external_force,
+            params={"asset_cfg": SceneEntityCfg("robot", body_names="base")},
+            clip=(-100, 100),
+        )
         height_scanner = ObsTerm(func=mdp.height_scan_clip,
             scale=5.0,
             params={"sensor_cfg": SceneEntityCfg("height_scanner")},
@@ -352,14 +356,14 @@ class RewardsCfg:
     # joint_torques = RewTerm(func=mdp.joint_torques_l2, weight=-2e-4)
     # joint_vel = RewTerm(func=mdp.joint_vel_l2, weight=-0.001)
     
-    head_undesired_contacts = RewTerm(
-        func=mdp.undesired_contacts,
-        weight=-1,
-        params={
-            "threshold": 0.3,
-            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=["Head_.*"]),
-        },
-    )
+    # head_undesired_contacts = RewTerm(
+    #     func=mdp.undesired_contacts,
+    #     weight=-1,
+    #     params={
+    #         "threshold": 0.3,
+    #         "sensor_cfg": SceneEntityCfg("contact_forces", body_names=["Head_.*"]),
+    #     },
+    # )
     
     # other_undesired_contacts = RewTerm(
     #     func=mdp.undesired_contacts,
@@ -371,7 +375,7 @@ class RewardsCfg:
     # )
 
     # is_terminated = RewTerm(func=mdp.is_terminated, weight=-5.0)
-    joint_pos_limits = RewTerm(func=mdp.joint_pos_limits, weight=-10.0)
+    # joint_pos_limits = RewTerm(func=mdp.joint_pos_limits, weight=-10.0)
     # joint_vel_limits = RewTerm(func=mdp.joint_vel_limits, weight=-5.0)
     # applied_torque_limits = RewTerm(func=mdp.applied_torque_limits, weight=-0.1)
     
