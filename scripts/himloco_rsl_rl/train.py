@@ -44,6 +44,8 @@ simulation_app = app_launcher.app
 
 import gymnasium as gym
 import os
+import shutil
+import inspect
 import torch
 from datetime import datetime
 
@@ -144,7 +146,11 @@ def main(env_cfg: ManagerBasedRLEnvCfg, agent_cfg: HIMOnPolicyRunnerCfg):
     dump_yaml(os.path.join(log_dir, "params", "agent.yaml"), agent_cfg)
     dump_pickle(os.path.join(log_dir, "params", "env.pkl"), env_cfg)
     dump_pickle(os.path.join(log_dir, "params", "agent.pkl"), agent_cfg)
-
+    
+    shutil.copy(
+        inspect.getfile(env_cfg.__class__),
+        os.path.join(log_dir, "params", os.path.basename(inspect.getfile(env_cfg.__class__))),
+    )
     # run training
     runner.learn(num_learning_iterations=agent_cfg.max_iterations, init_at_random_ep_len=True)
 
