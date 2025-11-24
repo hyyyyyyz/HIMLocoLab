@@ -11,6 +11,88 @@ import torch
 import torch.nn.functional as F
 
 
+def export_himloco_policy_as_jit(
+    actor_critic: object,
+    path: str,
+    policy_filename: str = "policy.pt",
+):
+    """Export HimLoco dual network (encoder + policy) as a single TorchScript JIT file.
+    
+    The exported model combines encoder and policy into a single forward pass:
+    obs_history -> encoder -> [vel, latent] -> policy -> actions
+    
+    Args:
+        actor_critic: The HIMActorCritic module containing estimator and actor.
+        path: The path to the saving directory.
+        policy_filename: The name of exported policy JIT file. Defaults to "policy.pt".
+    """
+    if not os.path.exists(path):
+        os.makedirs(path, exist_ok=True)
+    
+    # Export as single combined JIT model
+    exporter = _HimlcoPolicyJitExporter(actor_critic)
+    exporter.export(path, policy_filename)
+    
+    print(f"[INFO] Exported HimLoco policy JIT to: {os.path.join(path, policy_filename)}")
+
+
+class _HimlcoPolicyJitExporter(torch.nn.Module):
+    """Exporter for HimLoco policy as TorchScript JIT (encoder + policy combined)."""
+    
+    def __init__(self, actor_critic):
+        super().__init__()
+        # Copy actor and encoder networks
+        self.actor = copy.deepcopy(actor_critic.actor)
+        self.estimator = copy.deepcopy(actor_critic.estimator.encoder)
+    
+    def forward(self, obs_history):
+        """Forward pass: obs_history -> actions
+        
+        Args:
+            obs_history: Historical observations [batch, history_size * num_one_step_obs]
+            
+        Returns:
+            actions: Action outputs [batch, num_actions]
+        """
+        # Run encoder: extract vel and latent from observation history
+        parts = self.estimator(obs_history)
+        
+        # Split into vel and latent (assuming encoder outputs 19 dims: 3 vel + 16 latent)
+        vel = parts[..., :3]
+        z = parts[..., 3:19]
+        
+        # Normalize latent representation (L2 normalization)
+        z = F.normalize(z, dim=-1, p=2.0)
+        
+        # Get current observation (first num_one_step_obs dims)
+        # Assuming obs_history has shape [batch, history_size * 45], get first 45 dims
+        current_obs = obs_history[..., :45]
+        
+        # Concatenate: [current_obs, vel, latent] -> policy
+        policy_input = torch.cat((current_obs, vel, z), dim=-1)
+        
+        # Run policy network
+        actions = self.actor(policy_input)
+        
+        return actions
+    
+    def export(self, path, filename):
+        """Export the combined policy model to TorchScript JIT format."""
+        self.to("cpu")
+        self.eval()
+        
+        # Trace the model with dummy input
+        obs_history = torch.zeros(1, self.estimator[0].in_features)
+        
+        # Use torch.jit.script for better compatibility
+        traced_script_module = torch.jit.script(self)
+        
+        # Save to file
+        save_path = os.path.join(path, filename)
+        traced_script_module.save(save_path)
+        print(f"[INFO] Successfully saved TorchScript JIT model to: {save_path}")
+
+
 def export_himloco_policy_as_onnx(
     actor_critic: object,
     path: str,

@@ -64,7 +64,7 @@ from isaaclab.utils.dict import print_dict
 import himloco_lab.tasks  # noqa: F401
 from himloco_lab.rsl_rl import HIMOnPolicyRunner, HimlocoVecEnvWrapper
 from himloco_lab.rsl_rl.config import HIMOnPolicyRunnerCfg
-from himloco_lab.utils import export_deploy_cfg, export_himloco_policy_as_onnx
+from himloco_lab.utils import export_deploy_cfg, export_himloco_policy_as_jit, export_himloco_policy_as_onnx
 from isaaclab_tasks.utils import get_checkpoint_path
 from isaaclab_tasks.utils.hydra import hydra_task_config
 
@@ -158,9 +158,18 @@ def main(env_cfg: ManagerBasedRLEnvCfg, agent_cfg: HIMOnPolicyRunnerCfg):
     # obtain the trained policy for inference
     policy = runner.get_inference_policy(device=env.device)
 
-    # export HimLoco dual network (encoder + policy) to ONNX
+    # export HimLoco dual network (encoder + policy) as TorchScript JIT and ONNX
     export_model_dir = os.path.join(os.path.dirname(resume_path), "exported")
     print(f"[INFO] Exporting HimLoco dual network to: {export_model_dir}")
+    
+    # Export as TorchScript JIT (combined encoder + policy)
+    export_himloco_policy_as_jit(
+        runner.alg.actor_critic,
+        path=export_model_dir,
+        policy_filename="policy.pt"
+    )
+    
+    # Export as ONNX (separate encoder and policy)
     export_himloco_policy_as_onnx(
         runner.alg.actor_critic,
         path=export_model_dir,
