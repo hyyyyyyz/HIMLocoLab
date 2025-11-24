@@ -110,25 +110,25 @@ UNITREE_GO2_CFG = UnitreeArticulationCfg(
         },
         joint_vel={".*": 0.0},
     ),
-    # actuators={
-    #     "GO2HV": unitree_actuators.UnitreeActuatorCfg_Go2HV(
-    #         joint_names_expr=[".*"],
-    #         stiffness=25.0,
-    #         damping=0.5,
-    #         friction=0.01,
-    #     ),
-    # },
     actuators={
-        "legs": DCMotorCfg(
-            joint_names_expr=[".*_joint"],
-            effort_limit=33.5,
-            saturation_effort=33.5,
-            velocity_limit=21.0,
-            stiffness=20.0,
+        "GO2HV": unitree_actuators.UnitreeActuatorCfg_Go2HV(
+            joint_names_expr=[".*"],
+            stiffness=25.0,
             damping=0.5,
-            friction=0.0,
+            friction=0.01,
         ),
     },
+    # actuators={
+    #     "legs": DCMotorCfg(
+    #         joint_names_expr=[".*_joint"],
+    #         effort_limit=33.5,
+    #         saturation_effort=33.5,
+    #         velocity_limit=21.0,
+    #         stiffness=20.0,
+    #         damping=0.5,
+    #         friction=0.0,
+    #     ),
+    # },
     # fmt: off
     joint_sdk_names=[
         "FR_hip_joint", "FR_thigh_joint", "FR_calf_joint",

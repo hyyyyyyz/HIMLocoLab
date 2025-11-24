@@ -34,26 +34,26 @@ COBBLESTONE_ROAD_CFG = terrain_gen.TerrainGeneratorCfg(
     use_cache=True,
     sub_terrains={
         "hf_pyramid_slope": terrain_gen.HfPyramidSlopedTerrainCfg(
-            proportion=0.15, 
+            proportion=0.05, 
             slope_range=(0.0, 0.4),  
             platform_width=3.0,  
             border_width=0.0,
         ),
         "hf_pyramid_slope_inv": terrain_gen.HfInvertedPyramidSlopedTerrainCfg(
-            proportion=0.15, 
+            proportion=0.05, 
             slope_range=(0.0, 0.4),  
             platform_width=3.0,
             border_width=0.0,  
         ),
-        # "hf_slope_with_noise": him_terrains.HfPyramidSlopeWithNoiseCfg(
-        #     proportion=0.2,
-        #     slope_range=(0.0, 0.4),
-        #     platform_width=3.0,
-        #     border_width=0.0,
-        #     noise_amplitude_range=(0.01, 0.08),
-        #     noise_step=0.005,
-        #     downsampled_scale=0.2,
-        # ),
+        "hf_slope_with_noise": him_terrains.HfPyramidSlopeWithNoiseCfg(
+            proportion=0.2,
+            slope_range=(0.0, 0.4),
+            platform_width=3.0,
+            border_width=0.0,
+            noise_amplitude_range=(0.01, 0.08),
+            noise_step=0.005,
+            downsampled_scale=0.2,
+        ),
         "pyramid_stairs": terrain_gen.MeshPyramidStairsTerrainCfg(
             proportion=0.3,
             step_height_range=(0.05, 0.23),  # 0.05 + 0.18 * difficulty
@@ -198,17 +198,17 @@ class EventCfg:
     )
 
     # interval
-    external_force = EventTerm(
-        func=mdp.apply_periodic_external_force_torque,
-        mode="interval",
-        interval_range_s=(0.02, 0.02),
-        params={
-            "period_step": 8,
-            "force_range": (-30.0, 30.0),
-            "torque_range": (-0.0, 0.0),
-            "asset_cfg": SceneEntityCfg("robot", body_names="base"),
-        },
-    )
+    # external_force = EventTerm(
+    #     func=mdp.apply_periodic_external_force_torque,
+    #     mode="interval",
+    #     interval_range_s=(0.02, 0.02),
+    #     params={
+    #         "period_step": 8,
+    #         "force_range": (-30.0, 30.0),
+    #         "torque_range": (-0.0, 0.0),
+    #         "asset_cfg": SceneEntityCfg("robot", body_names="base"),
+    #     },
+    # )
     push_robot = EventTerm(
         func=mdp.push_by_setting_velocity,
         mode="interval",
@@ -259,11 +259,11 @@ class ObservationsCfg:
         """Observations for policy group."""
 
         # observation terms (order preserved)
-        base_ang_vel = ObsTerm(func=mdp.base_ang_vel, scale=0.25, clip=(-100, 100), noise=Unoise(n_min=-0.2, n_max=0.2))
-        projected_gravity = ObsTerm(func=mdp.projected_gravity, clip=(-100, 100), noise=Unoise(n_min=-0.05, n_max=0.05))
         velocity_commands = ObsTerm(
             func=mdp.generated_commands, clip=(-100, 100), params={"command_name": "base_velocity"}
         )
+        base_ang_vel = ObsTerm(func=mdp.base_ang_vel, scale=0.25, clip=(-100, 100), noise=Unoise(n_min=-0.2, n_max=0.2))
+        projected_gravity = ObsTerm(func=mdp.projected_gravity, clip=(-100, 100), noise=Unoise(n_min=-0.05, n_max=0.05))
         joint_pos_rel = ObsTerm(func=mdp.joint_pos_rel, clip=(-100, 100), noise=Unoise(n_min=-0.01, n_max=0.01))
         joint_vel_rel = ObsTerm(
             func=mdp.joint_vel_rel, scale=0.05, clip=(-100, 100), noise=Unoise(n_min=-1.5, n_max=1.5)
@@ -277,20 +277,8 @@ class ObservationsCfg:
     policy: PolicyCfg = PolicyCfg()
 
     @configclass
-    class CriticCfg(ObsGroup):
+    class CriticCfg(PolicyCfg):
         """Observations for critic group."""
-        # observation terms (order preserved)
-        # base_ang_vel = ObsTerm(func=mdp.base_ang_vel, scale=0.25, clip=(-100, 100), noise=Unoise(n_min=-0.2, n_max=0.2))
-        # projected_gravity = ObsTerm(func=mdp.projected_gravity, clip=(-100, 100), noise=Unoise(n_min=-0.05, n_max=0.05))
-        # velocity_commands = ObsTerm(
-        #     func=mdp.generated_commands, clip=(-100, 100), params={"command_name": "base_velocity"}
-        # )
-        # joint_pos_rel = ObsTerm(func=mdp.joint_pos_rel, clip=(-100, 100), noise=Unoise(n_min=-0.01, n_max=0.01))
-        # joint_vel_rel = ObsTerm(
-        #     func=mdp.joint_vel_rel, scale=0.05, clip=(-100, 100), noise=Unoise(n_min=-1.5, n_max=1.5)
-        # )
-        # last_action = ObsTerm(func=mdp.last_action, clip=(-100, 100))
-        
         base_lin_vel = ObsTerm(func=mdp.base_lin_vel, scale=2.0, clip=(-100, 100), noise=Unoise(n_min=-0.1, n_max=0.1))
         base_external_force = ObsTerm(
             func=mdp.base_external_force,
@@ -364,26 +352,26 @@ class RewardsCfg:
     # joint_torques = RewTerm(func=mdp.joint_torques_l2, weight=-2e-4)
     # joint_vel = RewTerm(func=mdp.joint_vel_l2, weight=-0.001)
     
-    # head_undesired_contacts = RewTerm(
-    #     func=mdp.undesired_contacts,
-    #     weight=-1,
-    #     params={
-    #         "threshold": 0.3,
-    #         "sensor_cfg": SceneEntityCfg("contact_forces", body_names=["Head_.*"]),
-    #     },
-    # )
+    head_undesired_contacts = RewTerm(
+        func=mdp.undesired_contacts,
+        weight=-1,
+        params={
+            "threshold": 0.3,
+            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=["Head_.*"]),
+        },
+    )
     
-    # other_undesired_contacts = RewTerm(
-    #     func=mdp.undesired_contacts,
-    #     weight=-0.01,
-    #     params={
-    #         "threshold": 0.3,
-    #         "sensor_cfg": SceneEntityCfg("contact_forces", body_names=[".*_hip", ".*_thigh", ".*_calf"]),
-    #     },
-    # )
+    other_undesired_contacts = RewTerm(
+        func=mdp.undesired_contacts,
+        weight=-0.01,
+        params={
+            "threshold": 0.3,
+            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=[".*_hip", ".*_thigh", ".*_calf"]),
+        },
+    )
 
     # is_terminated = RewTerm(func=mdp.is_terminated, weight=-5.0)
-    # joint_pos_limits = RewTerm(func=mdp.joint_pos_limits, weight=-10.0)
+    joint_pos_limits = RewTerm(func=mdp.joint_pos_limits, weight=-10.0)
     # joint_vel_limits = RewTerm(func=mdp.joint_vel_limits, weight=-5.0)
     # applied_torque_limits = RewTerm(func=mdp.applied_torque_limits, weight=-0.1)
     
@@ -407,7 +395,7 @@ class RewardsCfg:
 
     # joint_pos = RewTerm(
     #     func=mdp.joint_position_penalty,
-    #     weight=-0.7,
+    #     weight=-0.1,
     #     params={
     #         "asset_cfg": SceneEntityCfg("robot", joint_names=".*"),
     #         "stand_still_scale": 5.0,
@@ -428,11 +416,11 @@ class RewardsCfg:
 ####################################################################################
 
     # # -- feet
-    # air_time_variance = RewTerm(
-    #     func=mdp.air_time_variance_penalty,
-    #     weight=-1.0,
-    #     params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot")},
-    # )
+    air_time_variance = RewTerm(
+        func=mdp.air_time_variance_penalty,
+        weight=-1.0,
+        params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot")},
+    )
     # feet_slide = RewTerm(
     #     func=mdp.feet_slide,
     #     weight=-0.1,
@@ -519,6 +507,7 @@ class RobotEnvCfg(ManagerBasedRLEnvCfg):
         # we tick all the sensors based on the smallest update period (physics update period)
         self.scene.contact_forces.update_period = self.sim.dt * self.decimation
         self.scene.height_scanner.update_period = self.sim.dt * self.decimation
+        self.scene.base_height_scanner.update_period = self.sim.dt * self.decimation
 
         # check if terrain levels curriculum is enabled - if so, enable curriculum for terrain generator
         # this generates terrains with increasing difficulty and is useful for training
@@ -539,10 +528,10 @@ class RobotPlayEnvCfg(RobotEnvCfg):
         self.scene.terrain.max_init_terrain_level = 10
         self.scene.terrain.terrain_generator.curriculum = True
         self.commands.base_velocity.heading_command = False
-        self.commands.base_velocity.ranges = mdp.UniformLevelVelocityCommandCfg.Ranges(
-            lin_vel_x=(1, 1), lin_vel_y=(-0.0, 0.0), ang_vel_z=(-0, 0), 
-        )
-        self.commands.base_velocity.low_vel_env_lin_x_ranges=(1,1)
+        # self.commands.base_velocity.ranges = mdp.UniformLevelVelocityCommandCfg.Ranges(
+        #     lin_vel_x=(1, 1), lin_vel_y=(-0.0, 0.0), ang_vel_z=(-0, 0), 
+        # )
+        # self.commands.base_velocity.low_vel_env_lin_x_ranges=(1,1)
         
         # Disable randomization events for play mode
         self.events.add_base_mass = None

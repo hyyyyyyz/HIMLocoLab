@@ -107,8 +107,7 @@ class HimlocoVecEnvWrapper(VecEnv):
         
         # Initialize privileged observation related attributes if critic observations exist
         if "critic" in self.unwrapped.observation_manager.group_obs_dim:
-            self.num_one_step_privileged_obs = self.num_one_step_obs + \
-                                            self.unwrapped.observation_manager.group_obs_dim["critic"][0]
+            self.num_one_step_privileged_obs = self.unwrapped.observation_manager.group_obs_dim["critic"][0]
             self.privileged_history_length = privileged_history_length
             self.num_privileged_obs = self.num_one_step_privileged_obs * (self.privileged_history_length + 1)
             self.privileged_obs_history_buf = torch.zeros(self.num_envs, self.num_privileged_obs, device=self.device)
@@ -293,10 +292,9 @@ class HimlocoVecEnvWrapper(VecEnv):
         
         # Update privileged observation history buffer if available
         if "critic" in obs_dict:
-            # Build privileged obs by stacking current policy with critic directly along last dim
-            current_privileged_obs = torch.cat((obs_dict["policy"], obs_dict["critic"]), dim=-1)
+            current_privileged_obs = obs_dict["critic"]
             # Compute termination observations before updating buffer
-            termination_observation = torch.cat((obs_before_reset["policy"], obs_before_reset["critic"]), dim=-1)
+            termination_observation = obs_before_reset["critic"]
             self._termination_privileged_obs = self.compute_termination_observations(
                 self._termination_ids, termination_observation
             )
