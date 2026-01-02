@@ -78,7 +78,7 @@ def joint_position_penalty(
 
 def smoothness(env: HimlocoManagerBasedRLEnv) -> torch.Tensor:
     """Penalize the rate of change of the actions using L2 squared kernel."""
-    return torch.sum(torch.square(env.action_manager.action - env.action_manager.action*2 + env.pre_pre_action), dim=1)
+    return torch.sum(torch.square(env.action_manager.action - env.action_manager.prev_action*2 + env.pre_pre_action), dim=1)
 
 """
 Feet rewards.
