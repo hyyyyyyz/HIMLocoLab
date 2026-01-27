@@ -1,0 +1,78 @@
+services:
+  isaac-lab:
+    env_file:
+      - .env
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+      args:
+        - ISAACSIM_BASE_IMAGE_ARG=${ISAACSIM_BASE_IMAGE}
+        - ISAACSIM_VERSION_ARG=${ISAACSIM_VERSION}
+        - ISAACSIM_ROOT_PATH_ARG=${DOCKER_ISAACSIM_ROOT_PATH}
+        - ISAACLAB_PATH_ARG=${DOCKER_ISAACLAB_PATH}
+        - DOCKER_USER_HOME_ARG=${DOCKER_USER_HOME}
+        - ROS2_APT_PACKAGE=${ROS2_APT_PACKAGE:-NONE}
+        - DOCKER_NAME_SUFFIX=${DOCKER_NAME_SUFFIX-}
+    image: isaac-lab-ros2${DOCKER_NAME_SUFFIX-}
+    container_name: isaac-lab-ros2${DOCKER_NAME_SUFFIX-}
+    environment:
+      - DISPLAY=${DISPLAY}
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - NVIDIA_VISIBLE_DEVICES=all
+      - ISAACSIM_PATH=${DOCKER_ISAACLAB_PATH}/_isaac_sim
+      - OMNI_KIT_ALLOW_ROOT=1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    # -------------------- 缓存 --------------------
+      - type: volume
+        source: isaac-cache-kit
+        target: ${DOCKER_ISAACSIM_ROOT_PATH}/kit/cache
+      - type: volume
+        source: isaac-cache-ov
+        target: ${DOCKER_USER_HOME}/.cache/ov
+      - type: volume
+        source: isaac-cache-pip
+        target: ${DOCKER_USER_HOME}/.cache/pip
+      - type: volume
+        source: isaac-cache-gl
+        target: ${DOCKER_USER_HOME}/.cache/nvidia/GLCache
+      - type: volume
+        source: isaac-cache-compute
+        target: ${DOCKER_USER_HOME}/.nv/ComputeCache
+    # -------------------- 代码映射 --------------------
+      - type: bind
+        source: ../source
+        target: ${DOCKER_ISAACLAB_PATH}/source
+      - type: bind
+        source: ../scripts
+        target: ${DOCKER_ISAACLAB_PATH}/scripts
+      - type: bind
+        source: ../logs
+        target: ${DOCKER_ISAACLAB_PATH}/logs
+    # -------------------- 相关数据 --------------------   
+      - type: volume
+        source: isaac-data
+        target: ${DOCKER_USER_HOME}/.local/share/ov/data
+      - type: volume
+        source: isaac-lab-data
+        target: ${DOCKER_ISAACLAB_PATH}/data_storage
+    network_mode: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    entrypoint: bash
+    stdin_open: true
+    tty: true
+
+volumes:
+  isaac-cache-kit:
+  isaac-cache-ov:
+  isaac-cache-pip:
+  isaac-cache-gl:
+  isaac-cache-compute:
+  isaac-data:
+  isaac-lab-data:

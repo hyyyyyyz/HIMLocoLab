@@ -1,0 +1,3 @@
+[submodule "docker/libs/IsaacLab"]
+	path = docker/libs/IsaacLab
+	url = https://github.com/hyyyyyyz/IsaacLab.git
