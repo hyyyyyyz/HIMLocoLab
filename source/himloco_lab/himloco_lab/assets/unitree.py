@@ -18,9 +18,6 @@ from isaaclab.utils import configclass
 
 from himloco_lab.assets import unitree_actuators
 
-UNITREE_MODEL_DIR = "path/to/unitree_model"  # Replace with the actual path to your unitree_model directory
-UNITREE_ROS_DIR = "/workspace/unitree_ros"  # Mapped from host: himloco_lab/unitree_ros
-
 @configclass
 class UnitreeArticulationCfg(ArticulationCfg):
     """Configuration for Unitree articulations."""
@@ -93,12 +90,10 @@ class UnitreeUrdfFileCfg(sim_utils.UrdfFileCfg):
 """ Configuration for the Unitree robots."""
 
 UNITREE_GO2_CFG = UnitreeArticulationCfg(
+    # Isaac Sim v5.1 后可以直接读取 URDF ，若想使用 USD 文件，则使用函数 UnitreeUsdFileCfg
     spawn=UnitreeUrdfFileCfg(
-        asset_path=f"{UNITREE_ROS_DIR}/robots/go2_description/urdf/go2_description.urdf",
+        asset_path="source/himloco_lab/himloco_lab/robots/go2_description/urdf/go2_description.urdf",
     ),
-    # spawn=UnitreeUsdFileCfg(
-    #     usd_path=f"{UNITREE_MODEL_DIR}/Go2/usd/go2.usd",
-    # ),
     init_state=ArticulationCfg.InitialStateCfg(
         pos=(0.0, 0.0, 0.4),
         joint_pos={

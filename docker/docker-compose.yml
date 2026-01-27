@@ -49,9 +49,6 @@ services:
       - type: bind
         source: ../logs
         target: ${DOCKER_ISAACLAB_PATH}/logs
-      - type: bind
-        source: ../unitree_ros
-        target: /workspace/unitree_ros
     # -------------------- 相关数据 --------------------   
       - type: volume
         source: isaac-data

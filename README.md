@@ -54,7 +54,6 @@ himloco_lab/
 
 ```bash
 git clone --recursive https://github.com/hyyyyyyz/himloco_lab.git
-cd himloco_lab
 ```
 
 ### 2. 构建训练环境
