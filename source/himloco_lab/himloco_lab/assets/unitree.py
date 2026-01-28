@@ -19,7 +19,7 @@ class UnitreeArticulationCfg(ArticulationCfg):
 
     joint_sdk_names: list[str] = None
 
-    soft_joint_pos_limit_factor = 0.9
+    soft_joint_pos_limit_factor = 0.9   # 关节软限位因子
 
 
 @configclass

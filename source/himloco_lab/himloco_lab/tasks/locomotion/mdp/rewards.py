@@ -19,11 +19,11 @@ if TYPE_CHECKING:
 Joint penalties.
 """
 
-
 def energy(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
-    """Penalize the energy used by the robot's joints."""
+    """ 惩罚关节的功耗 """
     asset: Articulation = env.scene[asset_cfg.name]
 
+    # 关节功率 = 关节速度 * 关节力矩
     qvel = asset.data.joint_vel[:, asset_cfg.joint_ids]
     qfrc = asset.data.applied_torque[:, asset_cfg.joint_ids]
     return torch.sum(torch.abs(qvel) * torch.abs(qfrc), dim=-1)
@@ -47,7 +47,7 @@ Robot.
 def orientation_l2(
     env: ManagerBasedRLEnv, desired_gravity: list[float], asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
 ) -> torch.Tensor:
-    """Reward the agent for aligning its gravity with the desired gravity vector using L2 squared kernel."""
+    """ 保持平衡，让机器人的躯干保持直立（或对齐到指定的重力向量） """
     # extract the used quantities (to enable type-hinting)
     asset: RigidObject = env.scene[asset_cfg.name]
 
@@ -68,7 +68,7 @@ def upward(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("r
 def joint_position_penalty(
     env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg, stand_still_scale: float, velocity_threshold: float
 ) -> torch.Tensor:
-    """Penalize joint position error from default on the articulation."""
+    """ 惩罚关节偏离默认位置 """
     # extract the used quantities (to enable type-hinting)
     asset: Articulation = env.scene[asset_cfg.name]
     cmd = torch.linalg.norm(env.command_manager.get_command("base_velocity"), dim=1)
@@ -77,7 +77,7 @@ def joint_position_penalty(
     return torch.where(torch.logical_or(cmd > 0.0, body_vel > velocity_threshold), reward, stand_still_scale * reward)
 
 def smoothness(env: HimlocoManagerBasedRLEnv) -> torch.Tensor:
-    """Penalize the rate of change of the actions using L2 squared kernel."""
+    """ 惩罚动作的加速度不要太大，就是动作变化平缓一点 """
     return torch.sum(torch.square(env.action_manager.action - env.action_manager.prev_action*2 + env.pre_pre_action), dim=1)
 
 """
@@ -86,6 +86,8 @@ Feet rewards.
 
 
 def feet_stumble(env: ManagerBasedRLEnv, sensor_cfg: SceneEntityCfg) -> torch.Tensor:
+    """ 绊脚检测 """
+
     # extract the used quantities (to enable type-hinting)
     contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
     forces_z = torch.abs(contact_sensor.data.net_forces_w[:, sensor_cfg.body_ids, 2])
@@ -101,7 +103,7 @@ def feet_height_body(
     target_height: float,
     command_name: str|None = None,
 ) -> torch.Tensor:
-    """Reward the swinging feet for clearing a specified height off the ground"""
+    """ 奖励摆动腿抬高到指定高度 """
     asset: RigidObject = env.scene[asset_cfg.name]
     cur_footpos_translated = asset.data.body_pos_w[:, asset_cfg.body_ids, :] - asset.data.root_pos_w[:, :].unsqueeze(1)
     footpos_in_body_frame = torch.zeros(env.num_envs, len(asset_cfg.body_ids), 3, device=env.device)
@@ -178,7 +180,7 @@ def base_height(
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     sensor_cfg: SceneEntityCfg | None = None,
 ) -> torch.Tensor:
-    """Penalize asset height from its target using L2 squared kernel.
+    """ 控制机器人躯干保持在目标高度
 
     Note:
         For flat terrain, target height is in the world frame. For rough terrain,

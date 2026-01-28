@@ -17,9 +17,7 @@ def apply_periodic_external_force_torque(
 ):
     """Apply periodic external forces and torques.
     
-    This function applies random forces and torques sampled from given ranges, but only
-    when the call count reaches a multiple of period_step. At other times, zero forces
-    and torques are applied. The call count is tracked using an attribute on the environment.
+    每隔固定的时间步长， 给机器人施加一次随机的推力和扭矩。 在其余时间里，施加的力和扭矩为零
     
     Args:
         env: The RL environment
