@@ -346,6 +346,8 @@ class RewardsCfg:
     base_angular_velocity = RewTerm(func=mdp.ang_vel_xy_l2, weight=-0.05)   # 保持机身水平
     flat_orientation_l2 = RewTerm(func=mdp.flat_orientation_l2, weight=-0.2)    # 惩罚翻滚/俯仰
     joint_acc = RewTerm(func=mdp.joint_acc_l2, weight=-2.5e-7)  # 惩罚关节加速度
+    joint_torques = RewTerm(func=mdp.joint_torques_l2, weight=-2e-4)  # 减少关节扭矩
+    joint_vel = RewTerm(func=mdp.joint_vel_l2, weight=-0.001)     # 惩罚关节速度
     energy = RewTerm(func=mdp.energy, weight=-2e-5)   # 节能
     action_rate = RewTerm(func=mdp.action_rate_l2, weight=-0.01)    # 惩罚动作变化率
     smoothness = RewTerm(func=mdp.smoothness, weight=-0.01)
@@ -371,8 +373,7 @@ class RewardsCfg:
         }
     )
 
-    joint_torques = RewTerm(func=mdp.joint_torques_l2, weight=-2e-4)  # 减少关节扭矩
-    joint_vel = RewTerm(func=mdp.joint_vel_l2, weight=-0.001)     # 惩罚关节速度
+
     
     # # 惩罚身体接触地面
     # head_undesired_contacts = RewTerm(
