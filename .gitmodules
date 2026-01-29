@@ -1,3 +1,6 @@
 [submodule "docker/libs/IsaacLab"]
 	path = docker/libs/IsaacLab
 	url = https://github.com/hyyyyyyz/IsaacLab.git
+[submodule "deploy_real"]
+	path = deploy_real
+	url = https://github.com/hyyyyyyz/deploy_real.git

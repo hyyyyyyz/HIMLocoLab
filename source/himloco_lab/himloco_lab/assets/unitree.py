@@ -108,23 +108,10 @@ UNITREE_GO2_CFG = UnitreeArticulationCfg(
             friction=0.01,
         ),
     },
-    # actuators={
-    #     "legs": DCMotorCfg(
-    #         joint_names_expr=[".*_joint"],
-    #         effort_limit=33.5,
-    #         saturation_effort=33.5,
-    #         velocity_limit=21.0,
-    #         stiffness=20.0,
-    #         damping=0.5,
-    #         friction=0.0,
-    #     ),
-    # },
-    # fmt: off
     joint_sdk_names=[
         "FR_hip_joint", "FR_thigh_joint", "FR_calf_joint",
         "FL_hip_joint", "FL_thigh_joint", "FL_calf_joint",
         "RR_hip_joint", "RR_thigh_joint", "RR_calf_joint",
         "RL_hip_joint", "RL_thigh_joint", "RL_calf_joint"
     ],
-    # fmt: on
 )
