@@ -13,19 +13,25 @@ HIMLOCO_ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.
 rl_enabled = False
 rl_just_enabled = False
 
-def get_projected_gravity(quat_wxyz):
-    """ 计算机体系下的重力方向 """
-    rot = np.zeros(9, dtype=np.float64)
-    mujoco.mju_quat2Mat(rot, quat_wxyz.astype(np.float64))
-    rot = rot.reshape(3, 3)
-    gravity_world = np.array([0.0, 0.0, -1.0], dtype=np.float64)
-    return (rot.T @ gravity_world).astype(np.float32)
+def get_gravity_orientation(quaternion):
+    qw = quaternion[0]
+    qx = quaternion[1]
+    qy = quaternion[2]
+    qz = quaternion[3]
+
+    gravity_orientation = np.zeros(3)
+
+    gravity_orientation[0] = 2 * (-qz * qx + qw * qy)
+    gravity_orientation[1] = -2 * (qz * qy + qw * qx)
+    gravity_orientation[2] = 1 - 2 * (qw * qw + qz * qz)
+
+    return gravity_orientation
 
 def pd_control(target_q, q, kp, target_dq, dq, kd):
     """PD 控制计算"""
     return (target_q - q) * kp + (target_dq - dq) * kd
 
-def map_joint_states_to_train_order(qj_sim, dqj_sim, joint_mapping, num_actions):
+def joint_states_mapping(qj_sim, dqj_sim, joint_mapping, num_actions):
     """ 关节状态映射 """
     qj = np.zeros(num_actions, dtype=np.float32)
     dqj = np.zeros(num_actions, dtype=np.float32)
@@ -34,13 +40,6 @@ def map_joint_states_to_train_order(qj_sim, dqj_sim, joint_mapping, num_actions)
         qj[i] = qj_sim[sim_idx]
         dqj[i] = dqj_sim[sim_idx]
     return qj, dqj
-
-def omega_world_to_body(quat_wxyz, omega_world):
-    """ 将世界系角速度转换到机体系 """
-    rot = np.zeros(9, dtype=np.float64)
-    mujoco.mju_quat2Mat(rot, quat_wxyz.astype(np.float64))
-    rot = rot.reshape(3, 3)
-    return rot.T @ omega_world
 
 if __name__ == "__main__":
 
@@ -117,7 +116,7 @@ if __name__ == "__main__":
             # 读取当前 MuJoCo 状态并通过映射转换为训练顺序
             qj_sim = d.qpos[7:]
             dqj_sim = d.qvel[6:]
-            qj, dqj = map_joint_states_to_train_order(qj_sim, dqj_sim, joint_mapping, num_actions)
+            qj, dqj = joint_states_mapping(qj_sim, dqj_sim, joint_mapping, num_actions)
 
             tau = pd_control(target_dof_pos, qj, kps, np.zeros_like(kds), dqj, kds)
             tau = np.clip(tau, -torque_limit, torque_limit) # 避免力矩超出限制
@@ -131,17 +130,16 @@ if __name__ == "__main__":
 
                 # 建立观测
                 quat = d.qpos[3:7]
-                omega_world = d.qvel[3:6]
+                omega = d.qvel[3:6]
 
                 qj_sim = d.qpos[7:]
                 dqj_sim = d.qvel[6:]
-                qj, dqj = map_joint_states_to_train_order(qj_sim, dqj_sim, joint_mapping, num_actions)
+                qj, dqj = joint_states_mapping(qj_sim, dqj_sim, joint_mapping, num_actions)
 
                 qj_obs = (qj - default_angles) * dof_pos_scale
                 dqj_obs = dqj * dof_vel_scale
-                gravity_orientation = get_projected_gravity(quat)
-                omega_body = omega_world_to_body(quat, omega_world)
-                omega = omega_body * ang_vel_scale
+                gravity_orientation = get_gravity_orientation(quat)
+                omega = omega * ang_vel_scale
 
                 obs[:3] = cmd
                 obs[3:6] = omega
