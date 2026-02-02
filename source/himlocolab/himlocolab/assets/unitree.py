@@ -11,7 +11,7 @@ from isaaclab.actuators import DCMotorCfg
 
 from isaaclab.utils import configclass
 
-from himloco_lab.assets import unitree_actuators
+from himlocolab.assets import unitree_actuators
 
 @configclass
 class UnitreeArticulationCfg(ArticulationCfg):
@@ -87,7 +87,7 @@ class UnitreeUrdfFileCfg(sim_utils.UrdfFileCfg):
 UNITREE_GO2_CFG = UnitreeArticulationCfg(
     # Isaac Sim v5.1 后可以直接读取 URDF ，若想使用 USD 文件，则使用函数 UnitreeUsdFileCfg
     spawn=UnitreeUrdfFileCfg(
-        asset_path="source/himloco_lab/robot_description/go2_description/urdf/go2_description.urdf",
+        asset_path="source/himlocolab/robot_description/go2_description/urdf/go2_description.urdf",
     ),
     init_state=ArticulationCfg.InitialStateCfg(
         pos=(0.0, 0.0, 0.4),
@@ -119,7 +119,7 @@ UNITREE_GO2_CFG = UnitreeArticulationCfg(
 UNITREE_GO2_CRAWL_CFG = UnitreeArticulationCfg(
     # Isaac Sim v5.1 后可以直接读取 URDF ，若想使用 USD 文件，则使用函数 UnitreeUsdFileCfg
     spawn=UnitreeUrdfFileCfg(
-        asset_path="source/himloco_lab/robot_description/go2_description/urdf/go2_description.urdf",
+        asset_path="source/himlocolab/robot_description/go2_description/urdf/go2_description.urdf",
     ),
     init_state=ArticulationCfg.InitialStateCfg(
         pos=(0.0, 0.0, 0.18),

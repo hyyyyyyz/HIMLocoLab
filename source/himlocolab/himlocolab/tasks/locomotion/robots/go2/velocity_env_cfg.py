@@ -18,9 +18,9 @@ from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR, ISAACLAB_NUCLEUS_DIR
 from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
 
-from himloco_lab.assets.unitree import UNITREE_GO2_CFG as ROBOT_CFG
-from himloco_lab.tasks.locomotion import mdp
-import himloco_lab.terrains as him_terrains
+from himlocolab.assets.unitree import UNITREE_GO2_CFG as ROBOT_CFG
+from himlocolab.tasks.locomotion import mdp
+import himlocolab.terrains as him_terrains
 
 # 地形配置
 COBBLESTONE_ROAD_CFG = terrain_gen.TerrainGeneratorCfg(

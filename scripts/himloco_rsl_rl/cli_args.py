@@ -10,7 +10,7 @@ import random
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from himloco_lab.rsl_rl.config import HIMOnPolicyRunnerCfg
+    from himlocolab.rsl_rl.config import HIMOnPolicyRunnerCfg
 
 
 def add_himloco_rsl_rl_args(parser: argparse.ArgumentParser):

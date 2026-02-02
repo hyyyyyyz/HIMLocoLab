@@ -9,7 +9,7 @@ HimLoco 是一个基于强化学习的四足机器人步态控制器，采用双
 ## 项目结构
 
 ```
-himloco_lab/
+himlocolab/
 ├── scripts/                          # 脚本文件
 │   ├── himloco_rsl_rl/
 │   │   ├── train.py                  # 训练脚本
@@ -20,8 +20,8 @@ himloco_lab/
 │   ├── zero_agent.py                 
 │   └── random_agent.py               
 │
-├── source/himloco_lab/               # 主要源代码
-│   └── himloco_lab/
+├── source/himlocolab/               # 主要源代码
+│   └── himlocolab/
 │       ├── tasks/                    # 任务定义
 │       │   └── locomotion/
 │       │       ├── mdp/              # 观测、动作、奖励、终止项
@@ -137,7 +137,7 @@ python scripts/himloco_rsl_rl/play.py --task Unitree-Go2-Velocity-Play
 ## 🔗 参考资源
 
 - [HimLoco](https://github.com/RoboLoco/HimLoco)
-- [himloco_lab](https://github.com/IsaacZH/himloco_lab)
+- [himlocolab](https://github.com/IsaacZH/himlocolab)
 - [Isaac Lab](https://isaac-sim.github.io/IsaacLab/)
 - [unitree_rl_lab](https://github.com/unitreerobotics/unitree_rl_lab)
 

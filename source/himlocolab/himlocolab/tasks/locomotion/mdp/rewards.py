@@ -13,7 +13,7 @@ from isaaclab.managers import RewardTermCfg as RewTerm
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
-    from himloco_lab.envs import HimlocoManagerBasedRLEnv
+    from himlocolab.envs import HimlocoManagerBasedRLEnv
 
 """
 Joint penalties.

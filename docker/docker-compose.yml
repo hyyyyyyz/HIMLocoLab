@@ -44,8 +44,8 @@ services:
         target: ${DOCKER_USER_HOME}/.nv/ComputeCache
     # -------------------- 代码映射 --------------------
       - type: bind
-        source: ../source/himloco_lab
-        target: ${DOCKER_ISAACLAB_PATH}/source/himloco_lab
+        source: ../source/himlocolab
+        target: ${DOCKER_ISAACLAB_PATH}/source/himlocolab
       - type: bind
         source: ../scripts
         target: ${DOCKER_ISAACLAB_PATH}/scripts

@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-"""Installation script for the 'himloco_lab' python package."""
+"""Installation script for the 'himlocolab' python package."""
 
 import os
 import toml
@@ -23,8 +23,8 @@ INSTALL_REQUIRES = [
 
 # Installation operation
 setup(
-    name="himloco_lab",
-    packages=["himloco_lab"],
+    name="himlocolab",
+    packages=["himlocolab"],
     author=EXTENSION_TOML_DATA["package"]["author"],
     maintainer=EXTENSION_TOML_DATA["package"]["maintainer"],
     url=EXTENSION_TOML_DATA["package"]["repository"],

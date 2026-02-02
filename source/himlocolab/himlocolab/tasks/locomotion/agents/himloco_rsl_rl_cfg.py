@@ -5,7 +5,7 @@
 
 from isaaclab.utils import configclass
 
-from himloco_lab.rsl_rl.config import HIMOnPolicyRunnerCfg, HIMPPPOAlgorithmCfg, HIMPPOActorCriticCfg
+from himlocolab.rsl_rl.config import HIMOnPolicyRunnerCfg, HIMPPPOAlgorithmCfg, HIMPPOActorCriticCfg
 
 @configclass
 class PPORunnerCfg(HIMOnPolicyRunnerCfg):

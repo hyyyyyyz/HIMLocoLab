@@ -61,10 +61,10 @@ from isaaclab.envs import ManagerBasedRLEnvCfg
 from isaaclab.utils.assets import retrieve_file_path
 from isaaclab.utils.dict import print_dict
 
-import himloco_lab.tasks  # noqa: F401
-from himloco_lab.rsl_rl import HIMOnPolicyRunner, HimlocoVecEnvWrapper
-from himloco_lab.rsl_rl.config import HIMOnPolicyRunnerCfg
-from himloco_lab.utils import export_himloco_policy_as_jit, export_himloco_policy_as_onnx
+import himlocolab.tasks  # noqa: F401
+from himlocolab.rsl_rl import HIMOnPolicyRunner, HimlocoVecEnvWrapper
+from himlocolab.rsl_rl.config import HIMOnPolicyRunnerCfg
+from himlocolab.utils import export_himloco_policy_as_jit, export_himloco_policy_as_onnx
 from isaaclab_tasks.utils import get_checkpoint_path
 from isaaclab_tasks.utils.hydra import hydra_task_config
 

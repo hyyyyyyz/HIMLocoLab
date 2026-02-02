@@ -53,11 +53,11 @@ from isaaclab.envs import ManagerBasedRLEnvCfg
 from isaaclab.utils.dict import print_dict
 from isaaclab.utils.io import dump_yaml
 
-import himloco_lab.tasks  # noqa: F401
-from himloco_lab.rsl_rl import HIMOnPolicyRunner, HimlocoVecEnvWrapper
-from himloco_lab.rsl_rl.config import HIMOnPolicyRunnerCfg
+import himlocolab.tasks  # noqa: F401
+from himlocolab.rsl_rl import HIMOnPolicyRunner, HimlocoVecEnvWrapper
+from himlocolab.rsl_rl.config import HIMOnPolicyRunnerCfg
 from isaaclab_tasks.utils.hydra import hydra_task_config
-from himloco_lab.utils import export_deploy_cfg
+from himlocolab.utils import export_deploy_cfg
 
 torch.backends.cuda.matmul.allow_tf32 = True
 torch.backends.cudnn.allow_tf32 = True

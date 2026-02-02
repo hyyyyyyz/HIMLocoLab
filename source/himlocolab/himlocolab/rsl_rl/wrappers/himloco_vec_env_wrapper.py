@@ -10,7 +10,7 @@ from __future__ import annotations
 import gymnasium as gym
 import torch
 
-from himloco_lab.envs import HimlocoManagerBasedRLEnv
+from himlocolab.envs import HimlocoManagerBasedRLEnv
 from ..env.vec_env import VecEnv
 
 class HimlocoVecEnvWrapper(VecEnv):
