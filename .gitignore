@@ -34,6 +34,7 @@ docker/.container.cfg
 # used to configure VS Code settings
 !.vscode
 /.vscode
+.vscode/*
 
 # Outputs
 **/output/*
