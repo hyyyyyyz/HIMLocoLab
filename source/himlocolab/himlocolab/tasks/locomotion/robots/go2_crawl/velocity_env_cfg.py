@@ -441,8 +441,8 @@ class TerminationsCfg:
 class CurriculumCfg:
     """Curriculum terms for the MDP."""
 
-    terrain_levels = CurrTerm(func=mdp.terrain_levels_vel)  # 地形课程
-    lin_vel_cmd_levels = CurrTerm(mdp.lin_vel_cmd_levels)   # 速度课程
+    # terrain_levels = CurrTerm(func=mdp.terrain_levels_vel)
+    lin_vel_cmd_levels = CurrTerm(mdp.lin_vel_cmd_levels)   # 速度课程（保留）
 
 
 @configclass
