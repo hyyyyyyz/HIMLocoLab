@@ -18,7 +18,7 @@ from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR, ISAACLAB_NUCLEUS_DIR
 from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
 
-from himlocolab.assets.unitree import UNITREE_GO2_CRAWL_CFG as ROBOT_CFG
+from himlocolab.assets.unitree import UNITREE_GO2_CFG as ROBOT_CFG
 from himlocolab.tasks.locomotion import mdp
 import himlocolab.terrains as him_terrains
 
@@ -93,8 +93,8 @@ class RobotSceneCfg(InteractiveSceneCfg):
     # 地形导入
     terrain = TerrainImporterCfg(
         prim_path="/World/ground",
-        terrain_type="plane",  # "平坦：plane", "程序化（混合地形）：generator"
-        terrain_generator=None,
+        terrain_type="generator",  # "平坦：plane", "程序化（混合地形）：generator"
+        terrain_generator=COBBLESTONE_ROAD_CFG,  # None, COBBLESTONE_ROAD_CFG
         max_init_terrain_level=5,   # 初始化最大难度级别    ->  机器人初始时只在难度 0 - 5 级的地形上训练
         collision_group=-1,
         physics_material=sim_utils.RigidBodyMaterialCfg(
@@ -247,7 +247,7 @@ class CommandsCfg:
         debug_vis=True, 
         heading_command=True,   # 包含朝向指令
         ranges=mdp.UniformLevelVelocityCommandCfg.Ranges(
-            lin_vel_x=(-2, 2), lin_vel_y=(-1.0, 1.0), ang_vel_z=(-2.0, 2.0), heading=(-math.pi, math.pi)
+            lin_vel_x=(-1, 1), lin_vel_y=(-1.0, 1.0), ang_vel_z=(-2.0, 2.0), heading=(-math.pi, math.pi)
         ),
         heading_control_stiffness=0.5,  # 朝向控制的刚度
         curriculums_limit_ranges=(-2, 2),
@@ -262,7 +262,7 @@ class ActionsCfg:
     """Action specifications for the MDP."""
 
     JointPositionAction = mdp.JointPositionActionCfg(
-        asset_name="robot", joint_names=[".*"], scale=0.3, use_default_offset=True, clip={".*": (-100.0, 100.0)}
+        asset_name="robot", joint_names=[".*"], scale=0.25, use_default_offset=True, clip={".*": (-100.0, 100.0)}
     )
 
 # observation compute step in lab: noise clip scale
@@ -301,6 +301,11 @@ class ObservationsCfg:
             clip=(-100, 100),
             noise=Unoise(n_min=-0.15, n_max=0.15)
         )
+        # base_external_force = ObsTerm(
+        #     func=mdp.base_external_force,
+        #     params={"asset_cfg": SceneEntityCfg("robot", body_names="base")},
+        #     clip=(-100, 100),
+        # )
 
         def __post_init__(self):
             self.enable_corruption = True
@@ -313,128 +318,54 @@ class ObservationsCfg:
 class RewardsCfg:
     """Reward terms for the MDP."""
 
+    base_linear_velocity = RewTerm(func=mdp.lin_vel_z_l2, weight=-2.0)  # 禁止上下跳跃
+    base_angular_velocity = RewTerm(func=mdp.ang_vel_xy_l2, weight=-0.5)   # 保持机身水平
+    flat_orientation_l2 = RewTerm(func=mdp.flat_orientation_l2, weight=-0.5)    # 惩罚翻滚/俯仰
+    joint_acc = RewTerm(func=mdp.joint_acc_l2, weight=-2.5e-7)  # 惩罚关节加速度
+    energy = RewTerm(func=mdp.energy, weight=-2e-5)   # 节能
+    action_rate = RewTerm(func=mdp.action_rate_l2, weight=-0.01)    # 惩罚动作变化率
+    smoothness = RewTerm(func=mdp.smoothness, weight=-0.01)
+
     # 跟踪线速度
     track_lin_vel_xy = RewTerm(
-        func=mdp.track_lin_vel_xy_exp,
-        weight=3.0,
+        func=mdp.track_lin_vel_xy_exp, 
+        weight=1.5, 
         params={
-            "command_name": "base_velocity",
+            "command_name": "base_velocity", 
             "std": math.sqrt(0.25)
         },
     )
 
     # 跟踪角速度
     track_ang_vel_z = RewTerm(
-        func=mdp.track_ang_vel_z_exp,
-        weight=0.5,
+        func=mdp.track_ang_vel_z_exp, 
+        weight=0.5, 
         params={
-            "command_name": "base_velocity",
+            "command_name": "base_velocity", 
             "std": math.sqrt(0.25)
         },
     )
-
-    base_linear_velocity = RewTerm(func=mdp.lin_vel_z_l2, weight=-2.0)  # 禁止上下跳跃
-    base_angular_velocity = RewTerm(func=mdp.ang_vel_xy_l2, weight=-0.05)   # 保持机身水平
-    flat_orientation_l2 = RewTerm(func=mdp.flat_orientation_l2, weight=-2.0)    # 惩罚翻滚/俯仰
-    joint_acc = RewTerm(func=mdp.joint_acc_l2, weight=-1.0e-7)  # 惩罚关节加速度
-    joint_torques = RewTerm(func=mdp.joint_torques_l2, weight=-1e-4)  # 惩罚关节扭矩
-    joint_vel = RewTerm(func=mdp.joint_vel_l2, weight=-0.0003)     # 惩罚关节速度
-    energy = RewTerm(func=mdp.energy, weight=-2e-5)   # 节能
-    action_rate = RewTerm(func=mdp.action_rate_l2, weight=-0.01)    # 惩罚动作变化率
-    smoothness = RewTerm(func=mdp.smoothness, weight=-0.01)
     
     # 保持机身高度
     base_height_l2 = RewTerm(
-        func=mdp.base_height,
-        weight=-8.0,
+        func=mdp.base_height, 
+        weight=-1.0, 
         params={
-            "target_height": 0.18,
+            "target_height": 0.3,
             "sensor_cfg": SceneEntityCfg("base_height_scanner"),
         },
     )
 
-    # 运动时腿部高度
+    # 运动抬腿高度
     feet_height_body = RewTerm(
         func=mdp.feet_height_body,
-        weight=-0.02,
+        weight=-0.01,
         params={
             "asset_cfg": SceneEntityCfg("robot", body_names=".*_foot"),
-            "target_height": -0.15,
+            "target_height": -0.2,
             "command_name": "base_velocity",
         }
     )
-
-    # 不期望的接触
-    other_undesired_contacts = RewTerm(
-        func=mdp.undesired_contacts,
-        weight=-2.0,
-        params={
-            "threshold": 1.0,
-            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=[".*_hip", ".*_thigh", ".*_calf"]),
-        },
-    )
-    
-    # 防止脚绊倒
-    feet_stumble = RewTerm(
-        func=mdp.feet_stumble,
-        weight=-0.05,
-        params={
-            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot"),
-        },
-    )
-    
-    # 限制脚部接触力
-    feet_contact_forces = RewTerm(
-        func=mdp.contact_forces,
-        weight=-0.01,
-        params={
-            "threshold": 150.0,
-            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot"),
-        },
-    )
-
-    # 脚部滑移惩罚
-    feet_slide = RewTerm(
-        func=mdp.feet_slide,
-        weight=-0.1,
-        params={
-            "asset_cfg": SceneEntityCfg("robot", body_names=".*_foot"),
-            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot"),
-        },
-    )
-
-    # 步态模式鼓励步态
-    feet_gait = RewTerm(
-        func=mdp.feet_gait,
-        weight=1.0,
-        params={
-            "period": 0.6,
-            "offset": [0.0, 0.5, 0.5, 0.0],  # 对角步态（LF, RF, LH, RH）
-            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot"),
-            "threshold": 0.3,
-            "command_name": "base_velocity",
-        },
-    )
-
-    # 足端必须接触地面
-    feet_contact = RewTerm(
-        func=mdp.desired_contacts,
-        weight=-2.0,
-        params={
-            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot"),
-            "threshold": 1.0,
-        },
-    )
-
-    # 惩罚关节位置偏差
-    joint_deviation = RewTerm(
-        func=mdp.joint_deviation_l1,
-        weight=-0.2,
-        params={
-            "asset_cfg": SceneEntityCfg("robot"),
-        },
-    )
-
 
 @configclass
 class TerminationsCfg:
@@ -442,10 +373,10 @@ class TerminationsCfg:
 
     time_out = DoneTerm(func=mdp.time_out, time_out=True)   # 超时终止
 
-    # 机身接触地面
+    # 机身接触地面（摔倒）
     base_contact = DoneTerm(
         func=mdp.illegal_contact,
-        params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names="base"), "threshold": 5.0},  # 从10.0降到5.0
+        params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names="base"), "threshold": 1.0},
     )
 
     # 走出地形边界
@@ -460,8 +391,8 @@ class TerminationsCfg:
 class CurriculumCfg:
     """Curriculum terms for the MDP."""
 
-    # terrain_levels = CurrTerm(func=mdp.terrain_levels_vel)
-    lin_vel_cmd_levels = CurrTerm(mdp.lin_vel_cmd_levels)   # 速度课程（保留）
+    terrain_levels = CurrTerm(func=mdp.terrain_levels_vel)  # 地形课程
+    lin_vel_cmd_levels = CurrTerm(mdp.lin_vel_cmd_levels)   # 速度课程
 
 
 @configclass

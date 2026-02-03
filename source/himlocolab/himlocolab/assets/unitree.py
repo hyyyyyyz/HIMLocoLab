@@ -147,3 +147,35 @@ UNITREE_GO2_CRAWL_CFG = UnitreeArticulationCfg(
         "RL_hip_joint", "RL_thigh_joint", "RL_calf_joint"
     ],
 )
+
+UNITREE_GO2_TERRAIN_CFG = UnitreeArticulationCfg(
+    # Isaac Sim v5.1 后可以直接读取 URDF ，若想使用 USD 文件，则使用函数 UnitreeUsdFileCfg
+    spawn=UnitreeUrdfFileCfg(
+        asset_path="source/himlocolab/robot_description/go2_description/urdf/go2_description.urdf",
+    ),
+    init_state=ArticulationCfg.InitialStateCfg(
+        pos=(0.0, 0.0, 0.4),
+        joint_pos={
+            ".*R_hip_joint": -0.1,
+            ".*L_hip_joint": 0.1,
+            "F[L,R]_thigh_joint": 0.8,
+            "R[L,R]_thigh_joint": 1.0,
+            ".*_calf_joint": -1.5,
+        },
+        joint_vel={".*": 0.0},
+    ),
+    actuators={
+        "GO2HV": unitree_actuators.UnitreeActuatorCfg_Go2HV(
+            joint_names_expr=[".*"],
+            stiffness=25.0,
+            damping=0.5,
+            friction=0.01,
+        ),
+    },
+    joint_sdk_names=[
+        "FR_hip_joint", "FR_thigh_joint", "FR_calf_joint",
+        "FL_hip_joint", "FL_thigh_joint", "FL_calf_joint",
+        "RR_hip_joint", "RR_thigh_joint", "RR_calf_joint",
+        "RL_hip_joint", "RL_thigh_joint", "RL_calf_joint"
+    ],
+)
