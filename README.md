@@ -125,12 +125,54 @@ python scripts/himloco_rsl_rl/play.py --task Unitree-Go2-Velocity-Play
 模型训练完成后，需要在 Mujoco 中对训练好的策略进行模拟验证（Sim2Sim），测试模型性能。
 然后才能进行真实机器人部署（Sim2Real）。
 
-## 以下文档还在维护中............
+### 环境配置
+
+```bash
+# 安装依赖库
+sudo apt install -y libyaml-cpp-dev libboost-all-dev libeigen3-dev libspdlog-dev libfmt-dev
+
+# 安装 unitree_sdk2
+git clone git@github.com:unitreerobotics/unitree_sdk2.git
+cd unitree_sdk2
+mkdir build && cd build
+cmake .. -DBUILD_EXAMPLES=OFF # 安装到 /usr/local 目录
+sudo make install
+# Compile the robot_controller
+cd HIMLocoLab/deploy/robots/go2 
+mkdir build && cd build
+cmake .. && make
+```
 
 ### Sim2Sim
 
+安装 [unitree_mujoco](https://github.com/unitreerobotics/unitree_mujoco?tab=readme-ov-file#installation).
+
+- Set the `robot` at `/simulate/config.yaml` to go2
+- Set `domain_id` to 0
+- Set `enable_elastic_hand` to 1
+- Set `use_joystck` to 1.
+
+
+启动 Mujoco 模拟环境
+```bash
+cd unitree_mujoco/simulate/build
+./unitree_mujoco
+```
+
+启动控制器：
+
+```bash
+cd himloco_lab/deploy/robots/go2/build
+./go2_ctrl --network lo # lo 的 ip 地址是 127.0.0.1 表示本地环回通信
+```
+
 ### Sim2Real
 
+可以使用此程序直接控制真实机器人，但需要确保已关闭机器人上的运控程序。
+
+```bash
+./go2_ctrl --network eth0 # eth0 is the network interface name.
+```
 
 
 
