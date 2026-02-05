@@ -316,7 +316,7 @@ class RewardsCfg:
     # 跟踪线速度
     track_lin_vel_xy = RewTerm(
         func=mdp.track_lin_vel_xy_exp,
-        weight=3.0,
+        weight=1.5,
         params={
             "command_name": "base_velocity",
             "std": math.sqrt(0.25)
@@ -343,7 +343,7 @@ class RewardsCfg:
     # 保持机身高度
     base_height_l2 = RewTerm(
         func=mdp.base_height,
-        weight=-8.0,
+        weight=-30.0,
         params={
             "target_height": 0.12,
             "sensor_cfg": SceneEntityCfg("base_height_scanner"),
@@ -373,7 +373,7 @@ class RewardsCfg:
     # 惩罚关节位置偏差
     joint_deviation = RewTerm(
         func=mdp.joint_deviation_l1,
-        weight=-0.2,
+        weight=-0.05,
         params={
             "asset_cfg": SceneEntityCfg("robot"),
         },
