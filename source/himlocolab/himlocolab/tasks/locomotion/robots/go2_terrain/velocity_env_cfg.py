@@ -236,7 +236,6 @@ class EventCfg:
         },
     )
 
-
 @configclass
 class CommandsCfg:
     """Command specifications for the MDP."""
@@ -255,7 +254,6 @@ class CommandsCfg:
         rel_high_vel_envs=0.2,
         min_command_norm=0.2,   # 最小速度（避免原地站立）
     )
-
 
 @configclass
 class ActionsCfg:
@@ -301,11 +299,6 @@ class ObservationsCfg:
             clip=(-100, 100),
             noise=Unoise(n_min=-0.15, n_max=0.15)
         )
-        # base_external_force = ObsTerm(
-        #     func=mdp.base_external_force,
-        #     params={"asset_cfg": SceneEntityCfg("robot", body_names="base")},
-        #     clip=(-100, 100),
-        # )
 
         def __post_init__(self):
             self.enable_corruption = True
