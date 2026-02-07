@@ -344,7 +344,7 @@ class RewardsCfg:
     # 保持机身高度
     base_height_l2 = RewTerm(
         func=mdp.base_height, 
-        weight=-1.0, 
+        weight=-2.0, 
         params={
             "target_height": 0.3,
             "sensor_cfg": SceneEntityCfg("base_height_scanner"),
