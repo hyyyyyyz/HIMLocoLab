@@ -95,7 +95,7 @@ class RobotSceneCfg(InteractiveSceneCfg):
         prim_path="/World/ground",
         terrain_type="generator",  # "平坦：plane", "程序化（混合地形）：generator"
         terrain_generator=COBBLESTONE_ROAD_CFG,  # None, COBBLESTONE_ROAD_CFG
-        max_init_terrain_level=2,   # 初始化最大难度级别
+        max_init_terrain_level=5,   # 初始化最大难度级别
         collision_group=-1,
         physics_material=sim_utils.RigidBodyMaterialCfg(
             friction_combine_mode="multiply",
@@ -396,7 +396,7 @@ class RewardsCfg:
         params={
             "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot"),
             "command_name": "base_velocity",
-            "threshold": 0.2,  # 从0.4降到0.2，更容易达到
+            "threshold": 0.2,
         },
     )
 
@@ -434,8 +434,8 @@ class RobotEnvCfg(ManagerBasedRLEnvCfg):
 
     # Scene settings
     scene: RobotSceneCfg = RobotSceneCfg(
-        num_envs=4096,  # 环境数量 
-        env_spacing=2.5   # 环境间距
+        num_envs=4096,  # 环境数量
+        env_spacing=3.5
     )
     # Basic settings
     observations: ObservationsCfg = ObservationsCfg()
