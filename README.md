@@ -176,10 +176,10 @@ cd himloco_lab/deploy/robots/go2/build
 
 
 
-## 🔗 参考资源
+## Thanks
 
 - [HimLoco](https://github.com/RoboLoco/HimLoco)
-- [himlocolab](https://github.com/IsaacZH/himlocolab)
+- [himloco_lab](https://github.com/IsaacZH/himloco_lab)
 - [Isaac Lab](https://isaac-sim.github.io/IsaacLab/)
 - [unitree_rl_lab](https://github.com/unitreerobotics/unitree_rl_lab)
 
