@@ -390,7 +390,7 @@ class RewardsCfg:
 
     is_terminated = RewTerm(func=mdp.is_terminated, weight=-5.0)
     joint_pos_limits = RewTerm(func=mdp.joint_pos_limits, weight=-5.0)
-    joint_vel_limits = RewTerm(func=mdp.joint_vel_limits, weight=-5.0)
+    joint_vel_limits = RewTerm(func=mdp.joint_vel_limits, weight=-5.0, params={"soft_ratio": 0.9})
     applied_torque_limits = RewTerm(func=mdp.applied_torque_limits, weight=-5.0)
     
     feet_air_time = RewTerm(
