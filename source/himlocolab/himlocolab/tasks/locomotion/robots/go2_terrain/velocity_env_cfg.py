@@ -243,7 +243,7 @@ class CommandsCfg:
     base_velocity = mdp.UniformLevelVelocityCommandCfg(
         asset_name="robot",
         resampling_time_range=(10.0, 10.0), # 每 10s 生成新指令
-        debug_vis=True, 
+        debug_vis=True,
         heading_command=True,   # 包含朝向指令
         ranges=mdp.UniformLevelVelocityCommandCfg.Ranges(
             lin_vel_x=(-2, 2), lin_vel_y=(-1.5, 1.5), ang_vel_z=(-2.0, 2.0), heading=(-math.pi, math.pi)
@@ -252,7 +252,7 @@ class CommandsCfg:
         curriculums_limit_ranges=(-2, 2),
         low_vel_env_lin_x_ranges=(-1, 1),
         rel_high_vel_envs=0.2,
-        min_command_norm=0.2,   # 最小速度（避免原地站立）
+        min_command_norm=0.0,   # 允许静止站立指令，配合 stand_still 奖励训练
     )
 
 @configclass
@@ -364,10 +364,19 @@ class RewardsCfg:
         func=mdp.feet_gait,
         weight=1.0,
         params={
-            "period": 0.5,  
+            "period": 0.5,
             "offset": [0.0, 0.5, 0.5, 0.0],  # （LF, RF, LH, RH）
             "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_foot"),
             "threshold": 0.5,
+            "command_name": "base_velocity",
+        },
+    )
+
+    # 静止站立奖励
+    stand_still = RewTerm(
+        func=mdp.stand_still,
+        weight=-0.5,
+        params={
             "command_name": "base_velocity",
         },
     )
@@ -474,9 +483,9 @@ class RobotPlayEnvCfg(RobotEnvCfg):
         self.scene.terrain.terrain_generator.curriculum = True
         self.commands.base_velocity.heading_command = False
         self.commands.base_velocity.ranges = mdp.UniformLevelVelocityCommandCfg.Ranges(
-            lin_vel_x=(-0.0, 0.0), lin_vel_y=(-0.0, 0.0), ang_vel_z=(-0.0, 0.0), 
+            lin_vel_x=(2.0, 2.0), lin_vel_y=(-0.0, 0.0), ang_vel_z=(-0.0, 0.0), 
         )
-        self.commands.base_velocity.low_vel_env_lin_x_ranges=(0.0, 0.0)
+        self.commands.base_velocity.low_vel_env_lin_x_ranges=(1.0, 1.0)
         
         # 推理模式下关闭领域随机化
         self.events.add_base_mass = None
