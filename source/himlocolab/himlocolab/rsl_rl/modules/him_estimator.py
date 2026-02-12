@@ -10,15 +10,15 @@ from torch.distributions import Normal, Categorical
 
 class HIMEstimator(nn.Module):
     def __init__(self,
-                 temporal_steps,
-                 num_one_step_obs,
-                 enc_hidden_dims=[128, 64, 16],
-                 tar_hidden_dims=[128, 64],
-                 activation='elu',
-                 learning_rate=1e-3,
-                 max_grad_norm=10.0,
-                 num_prototype=32,
-                 temperature=3.0,
+                 temporal_steps,                    # 历史时间步数
+                 num_one_step_obs,                  # 单步观测维度
+                 enc_hidden_dims=[128, 64, 16],     # 编码器隐藏层
+                 tar_hidden_dims=[128, 64],         # 目标网络隐藏层
+                 activation='elu',                  # 激活函数
+                 learning_rate=1e-3,                # 学习率
+                 max_grad_norm=10.0,                # 梯度裁剪阈值
+                 num_prototype=32,                  # 原型数量
+                 temperature=3.0,                   # 温度系数
                  **kwargs):
         if kwargs:
             print("Estimator_CL.__init__ got unexpected arguments, which will be ignored: " + str(
@@ -32,7 +32,7 @@ class HIMEstimator(nn.Module):
         self.max_grad_norm = max_grad_norm
         self.temperature = temperature
 
-        # Encoder
+        # Encoder 编码器
         enc_input_dim = self.temporal_steps * self.num_one_step_obs
         enc_layers = []
         for l in range(len(enc_hidden_dims) - 1):
@@ -41,7 +41,7 @@ class HIMEstimator(nn.Module):
         enc_layers += [nn.Linear(enc_input_dim, enc_hidden_dims[-1] + 3)]
         self.encoder = nn.Sequential(*enc_layers)
 
-        # Target
+        # Target 目标网络
         tar_input_dim = self.num_one_step_obs
         tar_layers = []
         for l in range(len(tar_hidden_dims)):
@@ -50,7 +50,7 @@ class HIMEstimator(nn.Module):
         tar_layers += [nn.Linear(tar_input_dim, enc_hidden_dims[-1])]
         self.target = nn.Sequential(*tar_layers)
 
-        # Prototype
+        # Prototype 原型层
         self.proto = nn.Embedding(num_prototype, enc_hidden_dims[-1])
 
         # Optimizer

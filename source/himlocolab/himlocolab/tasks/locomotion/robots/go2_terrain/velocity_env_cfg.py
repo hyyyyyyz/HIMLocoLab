@@ -474,9 +474,9 @@ class RobotPlayEnvCfg(RobotEnvCfg):
         self.scene.terrain.terrain_generator.curriculum = True
         self.commands.base_velocity.heading_command = False
         self.commands.base_velocity.ranges = mdp.UniformLevelVelocityCommandCfg.Ranges(
-            lin_vel_x=(1, 1), lin_vel_y=(-0.0, 0.0), ang_vel_z=(-0, 0), 
+            lin_vel_x=(-0.0, 0.0), lin_vel_y=(-0.0, 0.0), ang_vel_z=(-0.0, 0.0), 
         )
-        self.commands.base_velocity.low_vel_env_lin_x_ranges=(1,1)
+        self.commands.base_velocity.low_vel_env_lin_x_ranges=(0.0, 0.0)
         
         # 推理模式下关闭领域随机化
         self.events.add_base_mass = None
