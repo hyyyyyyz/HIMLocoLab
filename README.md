@@ -40,9 +40,6 @@ himlocolab/
 │       └── assets/                   # 资产文件
 │           └── unitree/              # Unitree Go2 URDF 和配置
 │
-├── deploy/                           # 机器人部署代码
-│   └── robots/go2/                   # Go2 控制器实现
-│
 └── README_CN.md                      # 本文件
 ```
 
