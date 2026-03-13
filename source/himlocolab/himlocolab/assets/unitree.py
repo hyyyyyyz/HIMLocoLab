@@ -16,8 +16,11 @@ from himlocolab.assets import unitree_actuators
 
 # Resolve asset paths relative to this file so that Hydra run directories
 # and different working directories do not break URDF loading.
+# Layout (relative to this file):
+#   this file:          source/himlocolab/himlocolab/assets/unitree.py
+#   robot_description:  source/himlocolab/robot_description/...
 _THIS_DIR = os.path.dirname(os.path.realpath(__file__))
-_ASSET_ROOT = os.path.abspath(os.path.join(_THIS_DIR, os.pardir, "robot_description"))
+_ASSET_ROOT = os.path.abspath(os.path.join(_THIS_DIR, os.pardir, os.pardir, "robot_description"))
 _GO2_URDF = os.path.join(_ASSET_ROOT, "go2_description", "urdf", "go2_description.urdf")
 
 @configclass
