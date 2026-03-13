@@ -13,6 +13,13 @@ from isaaclab.utils import configclass
 
 from himlocolab.assets import unitree_actuators
 
+
+# Resolve asset paths relative to this file so that Hydra run directories
+# and different working directories do not break URDF loading.
+_THIS_DIR = os.path.dirname(os.path.realpath(__file__))
+_ASSET_ROOT = os.path.abspath(os.path.join(_THIS_DIR, os.pardir, "robot_description"))
+_GO2_URDF = os.path.join(_ASSET_ROOT, "go2_description", "urdf", "go2_description.urdf")
+
 @configclass
 class UnitreeArticulationCfg(ArticulationCfg):
     """Configuration for Unitree articulations."""
@@ -87,7 +94,7 @@ class UnitreeUrdfFileCfg(sim_utils.UrdfFileCfg):
 UNITREE_GO2_CFG = UnitreeArticulationCfg(
     # Isaac Sim v5.1 后可以直接读取 URDF ，若想使用 USD 文件，则使用函数 UnitreeUsdFileCfg
     spawn=UnitreeUrdfFileCfg(
-        asset_path="source/himlocolab/robot_description/go2_description/urdf/go2_description.urdf",
+        asset_path=_GO2_URDF,
     ),
     init_state=ArticulationCfg.InitialStateCfg(
         pos=(0.0, 0.0, 0.4),
@@ -119,7 +126,7 @@ UNITREE_GO2_CFG = UnitreeArticulationCfg(
 UNITREE_GO2_CRAWL_CFG = UnitreeArticulationCfg(
     # Isaac Sim v5.1 后可以直接读取 URDF ，若想使用 USD 文件，则使用函数 UnitreeUsdFileCfg
     spawn=UnitreeUrdfFileCfg(
-        asset_path="source/himlocolab/robot_description/go2_description/urdf/go2_description.urdf",
+        asset_path=_GO2_URDF,
     ),
     init_state=ArticulationCfg.InitialStateCfg(
         pos=(0.0, 0.0, 0.20),
@@ -151,7 +158,7 @@ UNITREE_GO2_CRAWL_CFG = UnitreeArticulationCfg(
 UNITREE_GO2_TERRAIN_CFG = UnitreeArticulationCfg(
     # Isaac Sim v5.1 后可以直接读取 URDF ，若想使用 USD 文件，则使用函数 UnitreeUsdFileCfg
     spawn=UnitreeUrdfFileCfg(
-        asset_path="source/himlocolab/robot_description/go2_description/urdf/go2_description.urdf",
+        asset_path=_GO2_URDF,
     ),
     init_state=ArticulationCfg.InitialStateCfg(
         pos=(0.0, 0.0, 0.4),
@@ -183,7 +190,7 @@ UNITREE_GO2_TERRAIN_CFG = UnitreeArticulationCfg(
 UNITREE_GO2_HANDSTAND_CFG = UnitreeArticulationCfg(
     # Isaac Sim v5.1 后可以直接读取 URDF ，若想使用 USD 文件，则使用函数 UnitreeUsdFileCfg
     spawn=UnitreeUrdfFileCfg(
-        asset_path="source/himlocolab/robot_description/go2_description/urdf/go2_description.urdf",
+        asset_path=_GO2_URDF,
     ),
     init_state=ArticulationCfg.InitialStateCfg(
         pos=(0.0, 0.0, 0.42),
