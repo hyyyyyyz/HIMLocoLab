@@ -54,7 +54,7 @@ RUN mkdir -p /root/.mujoco && \
 
 # -------------------- 复制代码 --------------------
 # 先复制 Isaac Lab 基础框架
-COPY docker/libs/IsaacLab/ ${ISAACLAB_PATH}/
+COPY docker/third_party/IsaacLab/ ${ISAACLAB_PATH}/
 # 然后复制你的项目文件（会覆盖 source 和 scripts）
 COPY source/ ${ISAACLAB_PATH}/source/
 COPY scripts/ ${ISAACLAB_PATH}/scripts/
