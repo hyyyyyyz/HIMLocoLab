@@ -56,7 +56,7 @@ RUN mkdir -p /root/.mujoco && \
 # 先复制 Isaac Lab 基础框架
 COPY docker/third_party/IsaacLab/ ${ISAACLAB_PATH}/
 # 然后复制你的项目文件（会覆盖 source 和 scripts）
-COPY source/ ${ISAACLAB_PATH}/source/
+COPY source/himlocolab/ ${ISAACLAB_PATH}/source/himlocolab/
 COPY scripts/ ${ISAACLAB_PATH}/scripts/
 COPY docker/.ros/ ${DOCKER_USER_HOME}/.ros/
 
@@ -72,8 +72,12 @@ RUN --mount=type=cache,target=/var/cache/apt \
     apt -y autoremove && apt clean autoclean && \
     rm -rf /var/lib/apt/lists/*
 
+# 修复构建工具链：新版 setuptools(72+) 移除了 pkg_resources，导致 flatdict 等旧包无法构建
+# 通过 PIP_CONSTRAINT 限制构建隔离环境中的 setuptools 版本，从根本上解决问题
+RUN echo "setuptools<72" > /tmp/pip-constraints.txt
+
 RUN --mount=type=cache,target=${DOCKER_USER_HOME}/.cache/pip \
-    ${ISAACLAB_PATH}/isaaclab.sh --install
+    PIP_CONSTRAINT=/tmp/pip-constraints.txt ${ISAACLAB_PATH}/isaaclab.sh --install
 
 # -------------------- 配置系统 GUI 环境 --------------------
 RUN apt-get update && apt-get install -y --no-install-recommends \
